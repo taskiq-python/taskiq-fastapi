@@ -1,0 +1,24 @@
+name: Release python package
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Install deps
+        run: poetry install
+      - name: Release package
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish --build
