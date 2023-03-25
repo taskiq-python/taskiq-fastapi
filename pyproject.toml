@@ -24,8 +24,8 @@ keywords = ["taskiq", "tasks", "distributed", "async"]
 packages = [{ include = "taskiq_fastapi" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-taskiq = { branch = "develop", git = "https://github.com/taskiq-python/taskiq.git" }
+python = "^3.7"
+taskiq = "^0,>=0.3.0"
 fastapi = "*"
 
 [tool.poetry.group.dev.dependencies]
