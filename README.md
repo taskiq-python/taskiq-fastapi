@@ -23,6 +23,10 @@ fastapi's handler function.
 I have a script called `test_script.py` so my app can be found at `test_script:app`.
 We use strings to resolve application to bypass circular imports.
 
+Also, as you can see, we use `TaskiqDepends` for Request. That's because
+taskiq dependency resolver must know that this type must be injected. FastAPI disallow
+Depends for Request type. That's why we use `TaskiqDepends`.
+
 ```python
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
@@ -73,6 +77,8 @@ async def app_shutdown():
 taskiq_fastapi.init(broker, "test_script:app")
 
 
+# We use TaskiqDepends here, becuase if we use FastAPIDepends fastapi
+# initilization will fail.
 def get_redis_pool(request: Request = TaskiqDepends()) -> ConnectionPool:
     return request.app.state.redis_pool
 
@@ -81,6 +87,9 @@ def get_redis_pool(request: Request = TaskiqDepends()) -> ConnectionPool:
 async def my_redis_task(
     key: str,
     val: str,
+    # Here we depend using TaskiqDepends.
+    # Please use TaskiqDepends for all tasks to be resolved correctly.
+    # Or dependencies won't be injected.
     pool: ConnectionPool = TaskiqDepends(get_redis_pool),
 ):
     async with Redis(connection_pool=pool) as redis:
