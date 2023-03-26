@@ -1,6 +1,7 @@
 from typing import Awaitable, Callable
 
 from fastapi import FastAPI, Request
+from starlette.requests import HTTPConnection
 from taskiq import AsyncBroker, TaskiqEvents, TaskiqState
 from taskiq.cli.utils import import_object
 
@@ -66,8 +67,14 @@ def init(broker: AsyncBroker, app_path: str) -> None:
 
     if not isinstance(app, FastAPI):
         raise ValueError(f"'{app_path}' is not a FastAPI application.")
+    scope = {"app": app, "type": "http"}
 
-    broker.add_dependency_context({Request: Request({"app": app, "type": "http"})})
+    broker.add_dependency_context(
+        {
+            Request: Request(scope=scope),
+            HTTPConnection: HTTPConnection(scope=scope),
+        },
+    )
 
     broker.add_event_handler(
         TaskiqEvents.WORKER_STARTUP,
