@@ -93,7 +93,6 @@ def populate_dependency_context(broker: AsyncBroker, app: FastAPI) -> None:
     :param broker: current broker to use.
     :param app: current application.
     """
-
     scope = {"app": app, "type": "http"}
 
     broker.add_dependency_context(
