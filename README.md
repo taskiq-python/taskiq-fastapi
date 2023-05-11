@@ -77,8 +77,8 @@ async def app_shutdown():
 taskiq_fastapi.init(broker, "test_script:app")
 
 
-# We use TaskiqDepends here, becuase if we use FastAPIDepends fastapi
-# initilization will fail.
+# We use TaskiqDepends here, because if we use FastAPIDepends fastapi
+# initialization will fail.
 def get_redis_pool(request: Request = TaskiqDepends()) -> ConnectionPool:
     return request.app.state.redis_pool
 
@@ -119,4 +119,20 @@ async def getval_endpoint(
     async with Redis(connection_pool=pool, decode_responses=True) as redis:
         return await redis.get(key)
 
+```
+
+## Manually update dependency context
+
+When using `InMemoryBroker` it may be required to update the dependency context manually. This may also be useful when setting up tests.
+
+```py
+import taskiq_fastapi
+from taskiq import InMemoryBroker
+
+broker = InMemoryBroker()
+
+app = FastAPI()
+
+taskiq_fastapi.init(broker, "test_script:app")
+taskiq_fastapi.populate_dependency_context(broker, app)
 ```

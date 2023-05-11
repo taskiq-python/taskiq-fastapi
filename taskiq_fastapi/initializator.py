@@ -67,14 +67,8 @@ def init(broker: AsyncBroker, app_path: str) -> None:
 
     if not isinstance(app, FastAPI):
         raise ValueError(f"'{app_path}' is not a FastAPI application.")
-    scope = {"app": app, "type": "http"}
 
-    broker.add_dependency_context(
-        {
-            Request: Request(scope=scope),
-            HTTPConnection: HTTPConnection(scope=scope),
-        },
-    )
+    populate_dependency_context(broker, app)
 
     broker.add_event_handler(
         TaskiqEvents.WORKER_STARTUP,
@@ -84,4 +78,27 @@ def init(broker: AsyncBroker, app_path: str) -> None:
     broker.add_event_handler(
         TaskiqEvents.WORKER_SHUTDOWN,
         shutdown_event_generator(app),
+    )
+
+
+def populate_dependency_context(broker: AsyncBroker, app: FastAPI) -> None:
+    """
+    Populate dependency context.
+
+    This function injects the Request and HTTPConnection
+    into the broker's dependency context.
+
+    It may be need to be called manually if you are using InMemoryBroker.
+
+    :param broker: current broker to use.
+    :param app: current application.
+    """
+
+    scope = {"app": app, "type": "http"}
+
+    broker.add_dependency_context(
+        {
+            Request: Request(scope=scope),
+            HTTPConnection: HTTPConnection(scope=scope),
+        },
     )
