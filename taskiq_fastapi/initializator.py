@@ -6,40 +6,58 @@ from taskiq import AsyncBroker, TaskiqEvents, TaskiqState
 from taskiq.cli.utils import import_object
 
 
-def startup_event_generator(app: FastAPI) -> Callable[[TaskiqState], Awaitable[None]]:
+def startup_event_generator(
+    broker: AsyncBroker,
+    app_path: str,
+) -> Callable[[TaskiqState], Awaitable[None]]:
     """
     Generate shutdown event.
 
-    This function takes FastAPI application
+    This function takes FastAPI application path
     and runs startup event on broker's startup.
 
-    :param app: fastapi application.
+    :param broker: current broker.
+    :param app_path: fastapi application path.
     :returns: startup handler.
     """
 
     async def startup(state: TaskiqState) -> None:
+        if not broker.is_worker_process:
+            return
+        app = import_object(app_path)
+        if not isinstance(app, FastAPI):
+            app = app()
+
+        if not isinstance(app, FastAPI):
+            raise ValueError(f"'{app_path}' is not a FastAPI application.")
+
         state.fastapi_app = app
         app.router.routes = []
         await app.router.startup()
+        populate_dependency_context(broker, app)
 
     return startup
 
 
-def shutdown_event_generator(app: FastAPI) -> Callable[[TaskiqState], Awaitable[None]]:
+def shutdown_event_generator(
+    broker: AsyncBroker,
+) -> Callable[[TaskiqState], Awaitable[None]]:
     """
     Generate shutdown event.
 
     This function takes FastAPI application
     and runs shutdown event on broker's shutdown.
 
-    :param app: current application.
-    :return: startup event handler.
+    :param broker: current broker.
+    :return: shutdown event handler.
     """
 
-    async def startup(_: TaskiqState) -> None:
-        await app.router.shutdown()
+    async def shutdown(state: TaskiqState) -> None:
+        if not broker.is_worker_process:
+            return
+        await state.fastapi_app.router.shutdown()
 
-    return startup
+    return shutdown
 
 
 def init(broker: AsyncBroker, app_path: str) -> None:
@@ -49,35 +67,21 @@ def init(broker: AsyncBroker, app_path: str) -> None:
     This is the main function to integrate FastAPI
     with taskiq.
 
-    This function imports fastapi application by
-    python's path string and adds startup events
-    for broker.
+    It creates startup events for broker. So
+    in worker processes all fastapi
+    startup events will run.
 
     :param broker: current broker to use.
     :param app_path: path to fastapi application.
-    :raises ValueError: if fastapi cannot be resolved.
     """
-    if not broker.is_worker_process:
-        return
-
-    app = import_object(app_path)
-
-    if not isinstance(app, FastAPI):
-        app = app()
-
-    if not isinstance(app, FastAPI):
-        raise ValueError(f"'{app_path}' is not a FastAPI application.")
-
-    populate_dependency_context(broker, app)
-
     broker.add_event_handler(
         TaskiqEvents.WORKER_STARTUP,
-        startup_event_generator(app),
+        startup_event_generator(broker, app_path),
     )
 
     broker.add_event_handler(
         TaskiqEvents.WORKER_SHUTDOWN,
-        shutdown_event_generator(app),
+        shutdown_event_generator(broker),
     )
 
 
