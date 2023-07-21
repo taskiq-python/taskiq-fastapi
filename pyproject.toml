@@ -25,7 +25,7 @@ packages = [{ include = "taskiq_fastapi" }]
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-taskiq = "^0,>=0.3.1"
+taskiq = "^0,>=0.8.0"
 fastapi = "*"
 
 [tool.poetry.group.dev.dependencies]
