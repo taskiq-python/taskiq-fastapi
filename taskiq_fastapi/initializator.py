@@ -34,7 +34,7 @@ def startup_event_generator(
         state.fastapi_app = app
         await app.router.startup()
         state.lf_ctx = app.router.lifespan_context(app)
-        await state.lf_ctx.__aenter__()  # noqa: WPS609
+        await state.lf_ctx.__aenter__()
         populate_dependency_context(broker, app)
 
     return startup
@@ -57,7 +57,7 @@ def shutdown_event_generator(
         if not broker.is_worker_process:
             return
         await state.fastapi_app.router.shutdown()
-        await state.lf_ctx.__aexit__(None, None, None)  # noqa: WPS609
+        await state.lf_ctx.__aexit__(None, None, None)
 
     return shutdown
 
