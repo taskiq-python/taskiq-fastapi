@@ -32,8 +32,9 @@ def startup_event_generator(
             raise ValueError(f"'{app_path}' is not a FastAPI application.")
 
         state.fastapi_app = app
-        app.router.routes = []
         await app.router.startup()
+        state.lf_ctx = app.router.lifespan_context(app)
+        await state.lf_ctx.__aenter__()  # noqa: WPS609
         populate_dependency_context(broker, app)
 
     return startup
@@ -56,6 +57,7 @@ def shutdown_event_generator(
         if not broker.is_worker_process:
             return
         await state.fastapi_app.router.shutdown()
+        await state.lf_ctx.__aexit__(None, None, None)  # noqa: WPS609
 
     return shutdown
 
