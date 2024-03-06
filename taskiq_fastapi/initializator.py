@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable
+from typing import Awaitable, Callable, Union
 
 from fastapi import FastAPI, Request
 from starlette.requests import HTTPConnection
@@ -8,7 +8,7 @@ from taskiq.cli.utils import import_object
 
 def startup_event_generator(
     broker: AsyncBroker,
-    app_path: str,
+    app_or_path: Union[str, FastAPI],
 ) -> Callable[[TaskiqState], Awaitable[None]]:
     """
     Generate shutdown event.
@@ -24,12 +24,16 @@ def startup_event_generator(
     async def startup(state: TaskiqState) -> None:
         if not broker.is_worker_process:
             return
-        app = import_object(app_path)
-        if not isinstance(app, FastAPI):
-            app = app()
+        app = None
+        if isinstance(app_or_path, FastAPI):
+            app = app_or_path
+        else:
+            app = import_object(app_or_path)
+            if not isinstance(app, FastAPI):
+                app = app()
 
         if not isinstance(app, FastAPI):
-            raise ValueError(f"'{app_path}' is not a FastAPI application.")
+            raise ValueError(f"'{app_or_path}' is not a FastAPI application.")
 
         state.fastapi_app = app
         await app.router.startup()
