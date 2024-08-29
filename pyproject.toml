@@ -3,7 +3,7 @@ name = "taskiq-fastapi"
 description = "FastAPI integration for taskiq"
 authors = ["Taskiq team <taskiq@no-reply.com>"]
 maintainers = ["Taskiq team <taskiq@no-reply.com>"]
-version = "0.3.1"
+version = "0.0.0"
 readme = "README.md"
 license = "LICENSE"
 classifiers = [
@@ -33,7 +33,7 @@ mypy = "^1"
 pre-commit = "^2.20.0"
 coverage = "^6.4.2"
 black = "^23.1.0"
-ruff = "^0.0.292"
+ruff = "^0.6"
 
 [tool.mypy]
 strict = true
@@ -113,7 +113,7 @@ convention = "pep257"
 ignore-decorators = ["typing.overload"]
 
 [tool.ruff.pylint]
-allow-magic-value-types = ["int", "str", "float", "tuple"]
+allow-magic-value-types = ["int", "str", "float", "bytes"]
 
 [tool.ruff.flake8-bugbear]
 extend-immutable-calls = [
