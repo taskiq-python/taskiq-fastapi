@@ -76,6 +76,8 @@ async def app_shutdown():
 # Here we call our magic function.
 taskiq_fastapi.init(broker, "test_script:app")
 
+# This pulls in FastAPI's dependencies into Taskiq:
+taskiq_fastapi.populate_dependency_context(broker, app)
 
 # We use TaskiqDepends here, because if we use FastAPIDepends fastapi
 # initialization will fail.
