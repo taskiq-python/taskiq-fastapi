@@ -1,4 +1,4 @@
-from typing import Awaitable, Callable, Union
+from typing import Any, Awaitable, Callable, Mapping, Optional, Union
 
 from fastapi import FastAPI, Request
 from starlette.requests import HTTPConnection
@@ -38,8 +38,8 @@ def startup_event_generator(
         state.fastapi_app = app
         await app.router.startup()
         state.lf_ctx = app.router.lifespan_context(app)
-        await state.lf_ctx.__aenter__()
-        populate_dependency_context(broker, app)
+        asgi_state = await state.lf_ctx.__aenter__()
+        populate_dependency_context(broker, app, asgi_state)
 
     return startup
 
@@ -91,7 +91,11 @@ def init(broker: AsyncBroker, app_or_path: Union[str, FastAPI]) -> None:
     )
 
 
-def populate_dependency_context(broker: AsyncBroker, app: FastAPI) -> None:
+def populate_dependency_context(
+    broker: AsyncBroker,
+    app: FastAPI,
+    asgi_state: Optional[Mapping[str, Any]] = None,
+) -> None:
     """
     Populate dependency context.
 
@@ -102,10 +106,16 @@ def populate_dependency_context(broker: AsyncBroker, app: FastAPI) -> None:
 
     :param broker: current broker to use.
     :param app: current application.
+    :param asgi_state: state that will be injected in request.
     """
+    asgi_state = asgi_state or {}
     broker.dependency_overrides.update(
         {
-            Request: lambda: Request(scope={"app": app, "type": "http"}),
-            HTTPConnection: lambda: HTTPConnection(scope={"app": app, "type": "http"}),
+            Request: lambda: Request(
+                scope={"app": app, "type": "http", "state": asgi_state},
+            ),
+            HTTPConnection: lambda: HTTPConnection(
+                scope={"app": app, "type": "http", "state": asgi_state},
+            ),
         },
     )
