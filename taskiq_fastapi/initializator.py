@@ -106,7 +106,7 @@ def populate_dependency_context(
 
     :param broker: current broker to use.
     :param app: current application.
-    :param kwargs: additional state args.
+    :param asgi_state: state that will be injected in request.
     """
     asgi_state = asgi_state or {}
     broker.dependency_overrides.update(
