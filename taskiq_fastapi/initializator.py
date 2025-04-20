@@ -1,4 +1,4 @@
-from typing import Any, Awaitable, Callable, Dict, Mapping, Union
+from typing import Any, Awaitable, Callable, Mapping, Union
 
 from fastapi import FastAPI, Request
 from starlette.requests import HTTPConnection
