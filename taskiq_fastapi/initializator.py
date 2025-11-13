@@ -1,3 +1,4 @@
+import copy
 from typing import Any, Awaitable, Callable, Mapping, Optional, Union
 
 from fastapi import FastAPI, Request
@@ -112,10 +113,10 @@ def populate_dependency_context(
     broker.dependency_overrides.update(
         {
             Request: lambda: Request(
-                scope={"app": app, "type": "http", "state": asgi_state},
+                scope={"app": app, "type": "http", "state": copy.copy(asgi_state)},
             ),
             HTTPConnection: lambda: HTTPConnection(
-                scope={"app": app, "type": "http", "state": asgi_state},
+                scope={"app": app, "type": "http", "state": copy.copy(asgi_state)},
             ),
         },
     )
