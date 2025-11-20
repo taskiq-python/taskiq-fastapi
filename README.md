@@ -39,13 +39,23 @@ broker = ZeroMQBroker()
 async def lifespan(app: FastAPI):
     print("Creating redis pool")
     app.state.redis_pool = ConnectionPool.from_url("redis://localhost")
-
+    #####################
+    # IMPORTANT NOTE    #
+    #####################
+    # If you won't check that this is not
+    # a worker process, you'll
+    # create an infinite recursion. Because in worker processes
+    # fastapi startup will be called.
     if not broker.is_worker_process:
         print("Starting broker client")
         await broker.startup()
 
-    yield
+    yield # waits for shutdown
 
+    #####################
+    # IMPORTANT NOTE    #
+    #####################
+    # Same as above
     if not broker.is_worker_process:
         print("Shutting down broker client")
         await broker.shutdown()
@@ -55,8 +65,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+# Here we call our magic function.
 taskiq_fastapi.init(broker, "test_script:app")
 
+# We use TaskiqDepends here, because if we use FastAPIDepends fastapi
+# initialization will fail.
 def get_redis_pool(request: Request = TaskiqDepends()) -> ConnectionPool:
     return request.app.state.redis_pool
 
@@ -64,6 +77,9 @@ def get_redis_pool(request: Request = TaskiqDepends()) -> ConnectionPool:
 async def my_redis_task(
     key: str,
     val: str,
+    # Here we depend using TaskiqDepends.
+    # Please use TaskiqDepends for all tasks to be resolved correctly.
+    # Or dependencies won't be injected.
     pool: ConnectionPool = TaskiqDepends(get_redis_pool),
 ):
     async with Redis(connection_pool=pool) as redis:
