@@ -9,18 +9,26 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install poetry
-        run: pipx install poetry
+      - uses: actions/checkout@v4
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
-      - name: Install deps
-        run: poetry install
-      - name: Set version
-        run: poetry version "${{ github.ref_name }}"
-      - name: Release package
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v1
+
+      - name: Install project
+        run: uv pip install .
+
+      - name: Set version from tag
+        run: uvx hatch version "${{ github.ref_name }}"
+
+      - name: Build artifacts
+        run: uv build
+
+      - name: Publish package
         env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: poetry publish --build
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish --token "${{ secrets.PYPI_TOKEN }}"
