@@ -1,39 +1,44 @@
-[tool.poetry]
+[project]
 name = "taskiq-fastapi"
 description = "FastAPI integration for taskiq"
-authors = ["Taskiq team <taskiq@no-reply.com>"]
-maintainers = ["Taskiq team <taskiq@no-reply.com>"]
-version = "0.0.0"
 readme = "README.md"
-license = "LICENSE"
+license = { file = "LICENSE" }
+authors = [{ name = "Taskiq team", email = "taskiq@no-reply.com" }]
+maintainers = [{ name = "Taskiq team", email = "taskiq@no-reply.com" }]
+version = "0.0.0"
+requires-python = ">=3.10"
 classifiers = [
     "Typing :: Typed",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
     "Topic :: System :: Networking",
     "Development Status :: 3 - Alpha",
 ]
 keywords = ["taskiq", "tasks", "distributed", "async", "fastapi"]
-packages = [{ include = "taskiq_fastapi" }]
+dependencies = ["taskiq>=0.8.0", "fastapi>=0.93.0"]
 
-[tool.poetry.dependencies]
-python = "^3.8.1"
-taskiq = "^0,>=0.8.0"
-fastapi = ">=0.93.0"
+[dependency-groups]
+dev = [
+    "mypy>=1.0.0,<2.0.0",
+    "pre-commit>=2.20.0,<3.0.0",
+    "coverage>=6.4.2,<7.0.0",
+    "black>=23.1.0,<24.0.0",
+    "ruff>=0.6.0,<1.0.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-mypy = "^1"
-pre-commit = "^2.20.0"
-coverage = "^6.4.2"
-black = "^23.1.0"
-ruff = "^0.6"
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["taskiq_fastapi"]
 
 [tool.mypy]
 strict = true
@@ -46,10 +51,6 @@ implicit_reexport = true
 allow_untyped_decorators = true
 warn_return_any = false
 warn_unused_ignores = false
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 # List of enabled rulsets.
