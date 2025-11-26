@@ -87,6 +87,7 @@ lint.select = [
     "ERA", # Checks for commented out code
     "PL",  # PyLint checks
     "RUF", # Specific to Ruff checks
+    "UP",  # Pyupgrade: modernize syntax & type hints
 ]
 lint.ignore = [
     "D105",    # Missing docstring in magic method
