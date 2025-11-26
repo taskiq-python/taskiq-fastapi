@@ -1,34 +1,27 @@
 name: Release python package
 
 on:
-  push:
-    tags:
-      - "*"
+  release:
+    types:
+      - released
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Install uv with python
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v1
-
-      - name: Install project
-        run: uv pip install .
+          enable-cache: true
 
       - name: Set version from tag
-        run: uvx hatch version "${{ github.ref_name }}"
+        run: uv version "${{ github.ref_name }}"
 
       - name: Build artifacts
         run: uv build
 
       - name: Publish package
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: uv publish --token "${{ secrets.PYPI_TOKEN }}"
