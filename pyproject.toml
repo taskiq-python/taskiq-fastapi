@@ -2,7 +2,8 @@
 name = "taskiq-fastapi"
 description = "FastAPI integration for taskiq"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [{ name = "Taskiq team", email = "taskiq@no-reply.com" }]
 maintainers = [{ name = "Taskiq team", email = "taskiq@no-reply.com" }]
 version = "0.0.0"
@@ -26,18 +27,23 @@ dependencies = ["taskiq>=0.8.0", "fastapi>=0.93.0"]
 
 [dependency-groups]
 dev = [
-    "mypy>=1.0.0,<2.0.0",
-    "pre-commit>=2.20.0,<3.0.0",
-    "coverage>=6.4.2,<7.0.0",
-    "black>=23.1.0,<24.0.0",
-    "ruff>=0.6.0,<1.0.0",
+    "pre-commit>=4.4.0",
+    # lint  
+    "ruff>=0.14.5",
+    "black>=25.11.0",
+    # type check  
+    "mypy>=1.18.2",
+    # tests  
+    "pytest>=9.0.1",
+    "pytest-cov>=7.0.0",
+    "coverage>=7.11.3",
 ]
 
 [build-system]
-requires = ["hatchling>=1.21"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.9.12,<0.10.0"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
+[tool.uv_build.targets.wheel]
 packages = ["taskiq_fastapi"]
 
 [tool.mypy]
