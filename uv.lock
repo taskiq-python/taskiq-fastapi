@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 
 [[package]]
@@ -1295,7 +1295,7 @@ wheels = [
 [[package]]
 name = "taskiq-fastapi"
 version = "0.0.0"
-source = { editable = "." }
+source = { virtual = "." }
 dependencies = [
     { name = "fastapi" },
     { name = "taskiq" },

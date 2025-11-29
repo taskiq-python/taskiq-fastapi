@@ -28,12 +28,12 @@ dependencies = ["taskiq>=0.8.0", "fastapi>=0.93.0"]
 [dependency-groups]
 dev = [
     "pre-commit>=4.4.0",
-    # lint  
+    # lint
     "ruff>=0.14.5",
     "black>=25.11.0",
-    # type check  
+    # type check
     "mypy>=1.18.2",
-    # tests  
+    # tests
     "pytest>=9.0.1",
     "pytest-cov>=7.0.0",
     "coverage>=7.11.3",
