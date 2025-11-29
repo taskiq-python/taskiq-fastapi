@@ -1,28 +1,37 @@
 name: Testing package
 
 on:
-  - push
-  - pull_request
+  pull_request:
+    paths-ignore:
+      - '*.md'
+  push:
+    paths-ignore:
+      - '*.md'
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
 
 jobs:
   lint:
     strategy:
       matrix:
-        cmd:
-          - black
-          - mypy
-          - ruff
+        cmd: ["black", "ruff", "mypy"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Install poetry
-        run: pipx install poetry
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v5
         with:
-          python-version: "3.9"
-          cache: "poetry"
+          persist-credentials: false
+      - id: setup-uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-suffix: 3.11
+          version: "latest"
+          python-version: 3.11
       - name: Install deps
-        run: poetry install
+        run: uv sync --all-extras
       - name: Run lint check
-        run: poetry run pre-commit run -a ${{ matrix.cmd }}
+        run: uv run pre-commit run -a ${{ matrix.cmd }}
