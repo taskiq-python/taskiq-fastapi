@@ -8,20 +8,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: release
+    permissions:
+      id-token: write
     steps:
       - uses: actions/checkout@v5
-
-      - name: Install uv with python
-        uses: astral-sh/setup-uv@v7
         with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: false
           python-version: "3.12"
-          enable-cache: true
-
-      - name: Set version from tag
-        run: uv version "${{ github.ref_name }}"
-
-      - name: Build artifacts
-        run: uv build
-
-      - name: Publish package
-        run: uv publish --token "${{ secrets.PYPI_TOKEN }}"
+          version: "latest"
+      - run: uv version "${GITHUB_REF_NAME}"
+      - run: uv build
+      - name: Release package
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish

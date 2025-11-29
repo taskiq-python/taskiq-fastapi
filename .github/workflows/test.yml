@@ -8,26 +8,30 @@ on:
     paths-ignore:
       - '*.md'
 
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+
 
 jobs:
   lint:
     strategy:
       matrix:
-        cmd: ["black", "mypy", "ruff"]
+        cmd: ["black", "ruff", "mypy"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-
-
-      - name: Install uv with python
+        with:
+          persist-credentials: false
+      - id: setup-uv
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
           enable-cache: true
-
-
-      - name: Install dependencies
+          cache-suffix: 3.11
+          version: "latest"
+          python-version: 3.11
+      - name: Install deps
         run: uv sync --all-extras
-
       - name: Run lint check
         run: uv run pre-commit run -a ${{ matrix.cmd }}
