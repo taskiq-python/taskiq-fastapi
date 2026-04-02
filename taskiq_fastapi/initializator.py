@@ -21,7 +21,8 @@ def startup_event_generator(
     and runs startup event on broker's startup.
 
     :param broker: current broker.
-    :param app_or_path: application path or fastapi instance or callable that creates fastapi app instance.
+    :param app_or_path: application path or fastapi instance
+        or callable that creates fastapi app instance.
     :returns: startup handler.
     """
 
@@ -82,7 +83,8 @@ def init(broker: AsyncBroker, app_or_path: PathOrAppOrFactory) -> None:
     startup events will run.
 
     :param broker: current broker to use.
-    :param app_or_path: application path or fastapi instance or callable that creates fastapi app instance.
+    :param app_or_path: application path or fastapi instance
+        or callable that creates fastapi app instance.
     """
     broker.add_event_handler(
         TaskiqEvents.WORKER_STARTUP,
