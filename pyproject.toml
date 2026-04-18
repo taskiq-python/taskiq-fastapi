@@ -23,7 +23,7 @@ classifiers = [
     "Development Status :: 3 - Alpha",
 ]
 keywords = ["taskiq", "tasks", "distributed", "async", "fastapi"]
-dependencies = ["taskiq>=0.8.0", "fastapi>=0.93.0"]
+dependencies = ["taskiq>=0.8.0", "fastapi>=0.133.0,<1"]
 
 [dependency-groups]
 dev = [
